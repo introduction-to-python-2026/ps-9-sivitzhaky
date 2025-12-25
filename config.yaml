@@ -1,2 +1,4 @@
-path: "path_to_model.joblib
-features: ['feature_A', 'feature_B']
+selected_features:
+  - MDVP:Fo(Hz)
+  - MDVP:Fhi(Hz)
+path: my_model.joblib

@@ -1,22 +1,37 @@
 import pandas as pd
-df = pd.read_csv("parkinsons.csv")
-df = df.dropna()
-df.head()
+import yaml
+import joblib
 
-import numpy as np
-y = df["status"]
-X = df.select_dtypes(include=[np.number]).drop(columns=["status"], errors="ignore")
-
+from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import MinMaxScaler
 from sklearn.svm import SVC
-pipe = Pipeline([("scaler", StandardScaler()),("svc", SVC(kernel="rbf"))])
+from sklearn.metrics import accuracy_score
 
-from sklearn.model_selection import train_test_split
-X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.2)
-len(X_train), len(X_val), len(y_train), len(y_val)
+# 1) Read config
+with open("config.yaml", "r") as f:
+    cfg = yaml.safe_load(f)
 
-from sklearn.model_selection import GridSearchCV
+selected_features = cfg["selected_features"]
+model_path = cfg["path"]
+
+# 2) Load data
+df = pd.read_csv("parkinsons.csv").dropna()
+
+# 3) Build X,y using ONLY selected features
+X = df[selected_features]
+y = df["status"]
+
+# 4) Split
+X_train, X_val, y_train, y_val = train_test_split(
+    X, y, test_size=0.2, random_state=42, stratify=y
+)
+
+# 5) Pipeline + GridSearch (SVC)
+pipe = Pipeline([
+    ("scaler", MinMaxScaler()),
+    ("svc", SVC(kernel="rbf"))
+])
 
 param_grid = {
     "svc__C": [0.1, 1, 10, 100, 1000],
@@ -33,9 +48,11 @@ search = GridSearchCV(
 )
 
 search.fit(X_train, y_train)
-
-from sklearn.metrics import accuracy_score
 best_model = search.best_estimator_
+
+# 6) Validate
 y_pred = best_model.predict(X_val)
 val_acc = accuracy_score(y_val, y_pred)
+
+print("Best params:", search.best_params_)
 print("Validation accuracy:", val_acc)

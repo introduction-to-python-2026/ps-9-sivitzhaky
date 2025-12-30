@@ -2,3 +2,4 @@ selected_features:
   - "MDVP:Fo(Hz)"
   - "MDVP:Fhi(Hz)"
 path: "my_model.joblib"
+

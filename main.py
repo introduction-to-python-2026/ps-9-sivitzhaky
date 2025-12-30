@@ -1,4 +1,3 @@
-
 import pandas as pd
 import yaml
 import joblib
@@ -57,3 +56,7 @@ val_acc = accuracy_score(y_val, y_pred)
 
 print("Best params:", search.best_params_)
 print("Validation accuracy:", val_acc)
+
+# 7) Save model
+joblib.dump(best_model, model_path)
+print(f"Saved model to: {model_path}")

@@ -19,7 +19,7 @@ model_path = cfg["path"]
 df = pd.read_csv("parkinsons.csv").dropna()
 
 # 3) Build X,y using ONLY selected features
-X = df[selected_features]
+X = df[features]
 y = df["status"]
 
 # 4) Split
@@ -58,5 +58,5 @@ print("Best params:", search.best_params_)
 print("Validation accuracy:", val_acc)
 
 # 7) Save model
-joblib.dump(best_model, model_path)
+joblib.dump(best_model, "my_model.joblib")
 print(f"Saved model to: {model_path}")

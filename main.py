@@ -8,6 +8,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 
 
+
 def main():
     # 1) Read config
     with open("config.yaml", "r") as f:

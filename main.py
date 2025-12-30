@@ -1,33 +1,23 @@
 import pandas as pd
 import joblib
 
-from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
+from sklearn.model_selection import GridSearchCV
 
-
-# The autograder expects the model to use exactly the 2 features listed in config.yaml:
 FEATURES = ["MDVP:Fo(Hz)", "MDVP:Fhi(Hz)"]
 
-
 def main():
-    # 1) Load dataset
+    # Load
     df = pd.read_csv("parkinsons.csv")
 
-    # 2) Keep only required columns + label, and drop missing rows
-    required_cols = FEATURES + ["status"]
-    df = df[required_cols].dropna()
-
+    # Keep only what the autograder will use
+    df = df[FEATURES + ["status"]].dropna()
     X = df[FEATURES]
     y = df["status"]
 
-    # 3) Split
-    X_train, X_val, y_train, y_val = train_test_split(
-        X, y, test_size=0.2, random_state=42, stratify=y
-    )
-
-    # 4) Model pipeline (scaling + SVC), then hyperparameter search
+    # Pipeline + GridSearch (refit=True by default -> fits best model on ALL X,y)
     pipe = Pipeline([
         ("scaler", StandardScaler()),
         ("svc", SVC(kernel="rbf")),
@@ -47,11 +37,10 @@ def main():
         n_jobs=-1
     )
 
-    search.fit(X_train, y_train)
+    search.fit(X, y)
 
-    # 5) Save the best model exactly where config.yaml points
-    best_model = search.best_estimator_
-    joblib.dump(best_model, "my_model.joblib")
+    # Save EXACT filename used in config.yaml
+    joblib.dump(search.best_estimator_, "my_model.joblib")
 
 
 if __name__ == "__main__":
